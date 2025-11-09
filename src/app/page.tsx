@@ -1,101 +1,212 @@
+"use client";
+
+import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { client, urlFor } from "@/lib/sanity";
+import { useState, useEffect } from "react";
+import Pagination from "@/components/Pagination";
+import AddToCartButton from "@/components/AddToCartButton";
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  discountedPrice?: number;
+  slug: { current: string };
+  image: any;
+  category: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const fetchData = async () => {
+      const query = `*[_type == "product"] | order(_createdAt desc){
+        _id, name, description, price, discountedPrice, slug, category, image
+        
+      }`;
+
+      try {
+        const data: Product[] = await client.fetch(query);
+        console.log("Total Products Fetched:", data.length); 
+        setAllProducts(data);
+      } catch (error) {
+        console.error("Error fetching all products:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const categories = [
+    { name: "women", display: "Women's Watch Collection" },
+    { name: "men", display: "Men's Watch Collection" },
+    { name: "kids", display: "Kid's Watch Collection" },
+  ];
+
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-gray-100  w-full mx-auto px-4 sm:px-6 py-10">
+      {/* Hero section */}
+      <section className="flex flex-col md:flex-row gap-20 items-center justify-between">
+        <div className="flex-1 space-y-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter">
+            Crafted Timepieces - Precision & Style
+          </h1>
+          <p className="mt-4 text-gray-600 text-xl">
+            Discover our curated collection of watches blends craftsmanship with
+            modern design. Choose a style that tells your story.
+          </p>
+
+          <div className="mt-6 flex gap-3">
+            <Link
+              href="/product"
+              className="px-4 py-2 rounded bg-slate-800 text-white"
+            >
+              Shop Now
+            </Link>
+
+            <Link href="/about" className="px-4 py-2 rounded border">
+              Learn More
+            </Link>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex relative h-80 md:h-96 rounded-lg overflow-hidden mt-10 md:mt-0 w-full md:w-1/2"
         >
           <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src={"/placeholder.png"}
+            alt="Hero watch"
+            width={800}
+            height={800}
+            className="rounded-xl shadow-lg mx-auto object-cover"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </motion.div>
+      </section>
+
+      {/* Full screen section linking to category */}
+
+      <section className="space-y-20 mt-10 px-6 py-12">
+
+          {categories.map((cat) => {
+          const productForCategory = allProducts.find(
+            (p) => p.category?.toLowerCase() === cat.name
+          );
+
+          const imgSrc = productForCategory?.image
+            ? urlFor(productForCategory.image).url()
+            : "/placeholder.png";
+
+          const description = `Discover exclusive pieces made for ${
+            cat.name === "kids" ? "little wrists" : cat.name
+          }.`;
+
+            return (
+              <Link
+                key={cat.name}
+                href={`/product?cat=${cat.name}`}
+                className="block"
+              >
+                <div className="flex flex-col md:flex-row justify-center items-center p-8 w-full">
+                  <div className="flex flex-col justify-center items-center p-6 text-center md:w-1/3">
+                    <h2 className="text-4xl font-bold text-gray-800 capitalize">{cat.display}</h2>
+                    <p className="text-slate-700 mt-4 text-lg">{description}</p>
+                  </div>
+                
+                {/* animated image block */}
+                <motion.div
+                  className="w-full md:w-2/3 h-[400px] relative overflow-hidden rounded-2xl shadow-md cursor-pointer border-5"
+                  transition={{ type: "spring", stiffness: 200 }}
+                  initial={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <Image
+                    src={imgSrc}
+                    alt={cat.display}
+                    className="object-contain p-4 rounded-xl"
+                    sizes="(min-width: 1024px) 66vw, 100vw"
+                    fill
+                  />
+                  
+                <div className="absolute inset-0 transition duration-300 bg-black/10 hover:bg-black/0"></div>
+              </motion.div>
+              </div>
+            </Link>
+          );
+        })};
+      </section>
+
+      {/* Pagination for featured products list */}
+      <section className="mt-12 max-w-6xl mx-auto px-4">
+        <FeaturedPagination products={allProducts} />
+      </section>
+    </main>
+  );
+}
+
+function FeaturedPagination({ products }: { products: Product[] }) {
+
+  if (!products || products.length === 0){
+    return <div className="text-center text-lg text-gray-500 py-10">Loading featured watchces...</div>
+  }
+  const perPage = 4;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(products.length / perPage));
+
+  if (page > totalPages) {
+    setPage(totalPages);
+  }
+
+  const start = (page - 1) * perPage;
+  const pageItems = products.slice(start, start + perPage);
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">New Arrivals</h2>
+
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {pageItems.map((p) => (
+          <div
+            key={p._id}
+            className="border rounded-xl p-4 shadow-lg hover:shadow-xl transistion-all duration-300 bg-white"
+          >
+            <Link href={`product/${p.slug?.current || "#"}`} passHref>
+              <div className="w-full h-56 relative mb-4">
+                <Image
+                  src={p.image ? urlFor(p.image).url() : "/placeholder.png"}
+                  alt={p.name}
+                  className="w-full h-56 object-cover rounded-md mb-4"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                />
+              </div>
+            </Link>
+            
+            <h3 className="text-lg font-semibold">{p.name}</h3>
+            {p.discountedPrice ? (
+              <div className="flex items-center gap-2">
+                <p className="text-red-500 font-bold">${p.discountedPrice}</p>
+                <p className="text-gray-600 line-through text-sm">${p.price}</p>
+              </div>
+            ) : (
+              <p className="text-gray-800 font-semibold">${p.price}</p>
+            )}
+            
+            <div className="mt-3">
+              <AddToCartButton product={p} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-10 flex justify-center">
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+      </div>
     </div>
   );
 }
