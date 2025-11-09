@@ -1,40 +1,67 @@
-
 import { client, urlFor } from "@/lib/sanity";
 import Image from "next/image";
 import AddToCartButton from "@/components/AddToCartButton";
 import WishlistButton from "@/components/WishlistButton";
 
-type Props = { params: { slug: string } };
+type Props = { params: {slug: string | string[]}};
+export const revalidate = 0;
     
 export default async function ProductDetails({ params }: Props) {
-  const {slug} = params;
+  const rawSlug = params.slug;
+  const slug = Array.isArray(rawSlug) ? rawSlug.join("/") : String(rawSlug ?? "");
 
-  if (!slug) {
-    return (
-      <main className="max-w-6xl mx-auto p-8 text-center">
-        <p className="text-xl font-semibold text-red-600">
-          Error: Product identifier is missing from the URL.
-        </p>
-      </main>
-    );
-  }
+  console.log("[product page] params.slug:", rawSlug);
+  console.log("[product page] resolved slug:", slug);
 
-  const query = `*[_type == "product" && slug.current == $slug][0]{
+  // if (!slug) {
+  //   return (
+  //     <main className="max-w-6xl mx-auto p-8 text-center">
+  //       <p className="text-xl font-semibold text-red-600">
+  //         Error: Product identifier is missing from the URL.
+  //       </p>
+  //     </main>
+  //   );
+  // }
+
+  
+   const query = `*[_type == "product"][0]{
         _id, name, description, price, discountedPrice, category, image, "slug": slug.current
     }`;
 
-  const product = await client.fetch(query, { slug });
-  // const product = await client.fetch(query);
+//    const query = `*[_type == "product" && slug.current == slug]{
+//         _id, name, description, price, discountedPrice, category, image, "slug": slug.current
+//     }[0]`;
 
+    let product: any = null;
+    try {
+      product = await client.fetch(query, { slug });
+      console.log("[product page] fetched product:", product);
+    }
+    catch (err) {
+      console.log("[product page] fetch errpr:", err);
+
+      return(
+        <main className="max-w-6xl mx-auto p-8 text-center">
+          <p className="text-xl font-semibold text-red-600">Error fetching product.</p>
+          <pre className="text-sm mt-4">{String(err)}</pre>
+        </main>
+      );
+    }
+ 
   if (!product) {
     return (
       <main className="max-w-6xl mx-auto p-8 text-center">
-        <p>Product not found</p>
+        <p className="text-xl font-semibold">Product not found</p>
+        <p className="text-sm text-gray-500 mt-2">Tried slug: <code>{slug}</code></p>
       </main>
     );
   }
 
   const finalPrice = product.discountedPrice || product.price
+
+  const imageUrl = product.image && (product.image.asset || product.image._ref)
+    ? urlFor(product.image).width(1200).url()
+    : "/placeholder.png";
 
   return (
     <main className="max-w-6xl mx-auto px-6 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -43,8 +70,8 @@ export default async function ProductDetails({ params }: Props) {
           <WishlistButton product={product} variant="icon" />
         </div>
         <Image
-          src={product.image ? urlFor(product.image).url() : "placeholder.png"}
-          alt={product.name}
+          src={imageUrl}
+          alt={product.name || "Product"}
           width={600}
           height={600}
           className="shadow-md rounded-xl object-cover"
@@ -80,3 +107,4 @@ export default async function ProductDetails({ params }: Props) {
     </main>
   );
 }
+
