@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, ShoppingCart, Menu, Heart } from "lucide-react";
+import { Search, Menu, Heart } from "lucide-react";
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";

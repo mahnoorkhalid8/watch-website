@@ -1,6 +1,6 @@
 "use client";
 
-import { Copyright, Twitter, Instagram } from "lucide-react";
+import { Copyright} from "lucide-react";
 import Link from "next/link";
 
 export default function Footer(){
@@ -33,8 +33,8 @@ export default function Footer(){
                 <div>
                     <h5 className="font-semibold">Follow</h5>
                     <div className="mt-2 ">
-                        <div className="w-8 h-8 g-white rounded flex items-center justify-center"><Instagram size={16} />Instagram</div>
-                        <div className="w-8 h-8 g-white rounded flex items-center justify-center"><Twitter size={16} />Twitter</div>
+                        <div className="w-8 h-8 g-white rounded flex items-center justify-center">Instagram</div>
+                        <div className="w-8 h-8 g-white rounded flex items-center justify-center">Twitter</div>
                     </div>
                 </div>
             </div>

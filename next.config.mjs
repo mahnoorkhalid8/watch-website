@@ -11,11 +11,11 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    turbo: {
-      root: import.meta.dirname,
-    },
-  },
+  // experimental: {
+  //   turbo: {
+  //     root: import.meta.dirname,
+  //   },
+  // },
 };
 
 export default nextConfig;

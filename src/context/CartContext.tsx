@@ -1,6 +1,5 @@
 "use client";
 
-import product from "@/sanity/schemas/product";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 interface Product {

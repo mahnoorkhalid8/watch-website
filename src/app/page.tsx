@@ -7,6 +7,8 @@ import { client, urlFor } from "@/lib/sanity";
 import { useState, useEffect } from "react";
 import Pagination from "@/components/Pagination";
 import AddToCartButton from "@/components/AddToCartButton";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 interface Product {
   _id: string;
@@ -23,6 +25,11 @@ export default function Home() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+    });
+
     const fetchData = async () => {
       const query = `*[_type == "product"] | order(_createdAt desc){
         _id, name, description, price, discountedPrice, slug, category, image
@@ -93,7 +100,7 @@ export default function Home() {
 
       <section className="space-y-20 mt-10 px-6 py-12">
 
-          {categories.map((cat) => {
+          {categories.map((cat, index) => {
           const productForCategory = allProducts.find(
             (p) => p.category?.toLowerCase() === cat.name
           );
@@ -109,10 +116,13 @@ export default function Home() {
             return (
               <Link
                 key={cat.name}
-                href={`/product?cat=${cat.name}`}
+                href={`/category?cat=${cat.name}`}
                 className="block"
               >
-                <div className="flex flex-col md:flex-row justify-center items-center p-8 w-full">
+                <div
+                  className="flex flex-col md:flex-row justify-center items-center p-8 w-full"
+                  data-aos={index % 2 === 0 ? "fade-up" : "fade-right"}
+                >
                   <div className="flex flex-col justify-center items-center p-6 text-center md:w-1/3">
                     <h2 className="text-4xl font-bold text-gray-800 capitalize">{cat.display}</h2>
                     <p className="text-slate-700 mt-4 text-lg">{description}</p>
@@ -166,14 +176,16 @@ function FeaturedPagination({ products }: { products: Product[] }) {
   const pageItems = products.slice(start, start + perPage);
 
   return (
-    <div>
+    <div data-aos="fade-up">
       <h2 className="text-3xl font-bold mb-6 text-gray-800">New Arrivals</h2>
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {pageItems.map((p) => (
+        {pageItems.map((p, i) => (
           <div
             key={p._id}
             className="border rounded-xl p-4 shadow-lg hover:shadow-xl transistion-all duration-300 bg-white"
+            data-aos="zoom-in-up"
+            data-aos-delay={1 * 100}
           >
             <Link href={`product/${p.slug?.current || "#"}`} passHref>
               <div className="w-full h-56 relative mb-4">

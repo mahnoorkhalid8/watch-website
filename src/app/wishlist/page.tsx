@@ -7,6 +7,8 @@ import Link from "next/link";
 import { ShoppingCart, Heart } from "lucide-react";
 import useCart from "@/context/CartContext";
 import WishlistButton from "@/components/WishlistButton";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function WishlistPage() {
     const { wishlist } = useWishlist();
@@ -14,11 +16,11 @@ export default function WishlistPage() {
 
     const handleMoveToCart = (item: WishlistItem) => {
         addToCart(item as any);
-        alert(`${item.name} has been added to your cart!`);
+        toast.success(`${item.name} has been added to your cart!`);
     };
 
     const handlRemoveFromWishlist = (item: WishlistItem) => {
-        alert(`${item.name} has been removed from your Wishlist!`);
+        toast.success(`${item.name} has been removed from your Wishlist!`);
     };
 
     return (
@@ -89,6 +91,7 @@ export default function WishlistPage() {
                     ))}
                 </div>
             )}
+            <ToastContainer />
         </main>
     );
 }
