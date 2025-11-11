@@ -2,8 +2,8 @@
 
 import ProductCard from "@/components/ProductCard";
 import Sidebar from "@/components/Sidebar";
-import { useState, useEffect } from "react";
-import { client, urlFor } from "@/lib/sanity";
+import { useState, useEffect, Suspense } from "react";
+import { client } from "@/lib/sanity";
 import { useSearchParams } from "next/navigation";
 
 interface Product {
@@ -16,17 +16,18 @@ interface Product {
   image?: any;
 }
 
-export default function CategoryPage() {
-  const [products, setProducts] = useState<any[]>([]);
+// ✅ Moved your logic into a separate client component
+function CategoryContent() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const category = searchParams.get("cat");
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try{
+      try {
         setLoading(true);
-        
+
         const query = category
           ? `*[_type == "product" && category == "${category}"] | order(_createdAt desc){
                 _id, name, description, price, discountedPrice, slug, category, image
@@ -37,20 +38,18 @@ export default function CategoryPage() {
 
         console.log("🧠 GROQ query:", query);
         const data: Product[] = await client.fetch(query);
-        console.log("Fetched products:", data);
-
         setProducts(data || []);
       } catch (error) {
-        console.log("Error fetching products:", error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
     };
 
-      fetchProducts();
-    }, [category]);
+    fetchProducts();
+  }, [category]);
 
-    if (loading) {
+  if (loading) {
     return (
       <main className="max-w-6xl mx-auto p-10 text-center">
         <p>Loading products...</p>
@@ -81,5 +80,14 @@ export default function CategoryPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function CategoryPage() {
+  return (
+    // ✅ Wrap the content with Suspense to satisfy Next.js 16
+    <Suspense fallback={<div>Loading category...</div>}>
+      <CategoryContent />
+    </Suspense>
   );
 }
