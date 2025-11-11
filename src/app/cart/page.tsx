@@ -63,7 +63,7 @@ export default function CartPage() {
             Clear Cart
           </button>
         </>
-      )};
+      )}
     </div>
   );
 }
