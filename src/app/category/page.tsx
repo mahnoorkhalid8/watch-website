@@ -29,7 +29,7 @@ function CategoryContent() {
         setLoading(true);
 
         const query = category
-          ? `*[_type == "product" && category == "${category}"] | order(_createdAt desc){
+          ? `*[_type == "product" && category == $category] | order(_createdAt desc){
                 _id, name, description, price, discountedPrice, slug, category, image
             }`
           : `*[_type == "product"] | order(_createdAt desc){
@@ -37,10 +37,14 @@ function CategoryContent() {
             }`;
 
         console.log("🧠 GROQ query:", query);
-        const data: Product[] = await client.fetch(query);
+        console.log("🧠 Category param:", category);
+        
+        const data: Product[] = await client.fetch(query, { category });
+        console.log("🧠 Fetched products:", data);
         setProducts(data || []);
       } catch (error) {
         console.error("Error fetching products:", error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
