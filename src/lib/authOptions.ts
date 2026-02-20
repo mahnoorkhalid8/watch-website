@@ -1,6 +1,25 @@
 import type { NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import type { Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+  }
+}
 
 const users = [
     { id: "1", name: "Mahnoor", email: "mahnoorkhalid814@gmai.com", password: bcrypt.hashSync("123456", 10) },
@@ -25,5 +44,19 @@ export const authOptions: NextAuthOptions ={
     ],
     pages: {signIn: "/login"},
     session: {strategy: "jwt"},
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET || "your-secret-key-here-change-in-production",
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
+            }
+            return session;
+        },
+    },
 };
